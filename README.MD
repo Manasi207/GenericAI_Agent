@@ -8,8 +8,6 @@ An intelligent, browser-integrated AI assistant built to simplify everyday tasks
 
 #### 🌦 Check Weather – Instantly fetch real-time weather updates for any city.
 
-####
-
 #### 🧩 Sentiment Analysis – Understand the tone and mood of any text input using a custom VADER + Gemini-based analyzer.
 
 #### 📝 Text Summarizer – Condense long articles or paragraphs into crisp, meaningful summaries.
