@@ -1,0 +1,504 @@
+I have developed Generic AI agent which is chrome based extension frontend: html , css,js  backend: google gemini flash 2.5 llm api, langchain, fastapi, python Where I have Integrated different modules 1) Check Weather 2) Sentiment Analysis 3) Summarize TExt 4) Browse through (web application) 5) Send Emails --->But now It is only supports text based prompt I want to upgrade it to multimodal (in my case text, voice commands, any kind of file / attachment based input). as per Task statement 1) 1.IDENTIFY WHAT IS MLLM AND DEPLOY A MLLM IN YOUR AL AGENTIC SYSTEMLEM. Below are the files provided, go through all files & provide updated version of files to achieve these specified multimodal capabilities. Frontend: manifest.json:{
+  "manifest_version": 3,
+  "name": "Chrome AI Agent (Gemini 2.5 Flash)",
+  "version": "2.1",
+  "description": "AI Agent powered by Gemini 2.5 Flash (text + image reasoning + tool actions)",
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["http://127.0.0.1:8000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+}
+// New code starts here popup.js
+const sendBtn = document.getElementById("sendBtn");
+const promptInput = document.getElementById("prompt");
+const responseDiv = document.getElementById("response");
+const imageInput = document.getElementById("imageInput");
+
+const API_URL = "http://127.0.0.1:8000";
+
+sendBtn.addEventListener("click", async () => {
+  const prompt = promptInput.value.trim();
+  if (!prompt) {
+    responseDiv.innerText = "⚠️ Please enter a prompt.";
+    return;
+  }
+
+  responseDiv.innerText = "⏳ Processing...";
+
+<<<<<<< HEAD
+  const file = imageInput.files[0];
+  try {
+    let res;
+    if (file) {
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+      formData.append("file", file);
+      res = await fetch(`${API_URL}/agent/image`, {
+        method: "POST",
+        body: formData,
+      });
+    } else {
+      res = await fetch(`${API_URL}/agent`, {
+=======
+    try {
+      const res = await fetch("http://13.61.4.25:8000/agent", {
+>>>>>>> 1a190c15c09dd3ab004bd05e82790fcc66e82eb0
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+    }
+
+    const data = await res.json();
+    const responseText = data.response || "⚠️ No response.";
+    responseDiv.innerText = responseText;
+
+    // ✅ Automatically open a new tab for browse: commands
+    if (responseText.includes("🌐 I will open")) {
+      const match = responseText.match(/open\s+([^\s]+)\s+/i);
+      if (match && match[1]) {
+        let url = match[1];
+        if (!url.startsWith("http")) {
+          url = "https://" + url;
+        }
+        chrome.tabs.create({ url });
+      }
+    }
+  } catch (err) {
+    responseDiv.innerText = "❌ Error: " + err.message;
+  }
+});
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generic AI Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h2>Generic AI Agent</h2>
+
+  <textarea id="prompt" placeholder="Ask anything..."></textarea>
+  <input type="file" id="imageInput" accept="image/*" />
+  <button id="sendBtn">Send</button>
+
+  <div id="response"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+body {
+  font-family: Arial, sans-serif;
+  width: 320px;
+  background-color: #0e1117;
+  color: #f1f1f1;
+  padding: 15px;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  resize: none;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#response {
+  margin-top: 12px;
+  padding: 10px;
+  background: #1c1f26;
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+Backend:
+# backend/agent_core.py
+import os
+from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools import Tool
+
+from tools.weather_tool import weather_tool_fn
+from tools.email_tool import send_email_tool
+from tools.summarize_tool import summarize_tool_fn
+from tools.sentiment_tool import sentiment_tool_fn
+from tools.browse_tool import browse_tool_fn
+
+load_dotenv()
+
+
+def get_llm():
+    """Return Gemini 2.5 Flash model."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    model_id = os.getenv("MODEL_ID", "gemini-2.5-flash")
+
+    if not api_key:
+        raise ValueError("Missing GEMINI_API_KEY in environment variables.")
+
+    return ChatGoogleGenerativeAI(
+        model=model_id,
+        google_api_key=api_key,
+        temperature=0.7,
+        convert_system_message_to_human=True,
+    )
+
+
+def get_tools():
+    """Return available tool list for the LangChain agent."""
+
+    # ✅ Wrap weather tool to force concise output
+    def short_weather_tool(city_name: str) -> str:
+        result = weather_tool_fn(city_name)
+        # Ensure it is single-line and concise
+        return result.replace("\n", " ").strip()
+
+    return [
+        Tool(name="weather", func=short_weather_tool, description="Get short weather for a city."),
+        Tool(name="send_email", func=send_email_tool, description="Send email with recipient, subject, and body."),
+        Tool(name="summarize", func=summarize_tool_fn, description="Summarize text using Gemini."),
+        Tool(name="sentiment", func=sentiment_tool_fn, description="Analyze text sentiment."),
+        Tool(name="browse", func=browse_tool_fn, description="Fetch webpage content and summarize it."),
+    ]
+
+
+_agent = None
+
+
+def get_agent():
+    """Create or reuse global LangChain agent."""
+    global _agent
+    if _agent is None:
+        llm = get_llm()
+        tools = get_tools()
+        _agent = initialize_agent(
+            tools,
+            llm,
+            agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            verbose=False,
+        )
+    return _agent
+
+
+def run_agent(agent, prompt: str):
+    """Safely run the agent and catch any errors."""
+    try:
+        # ✅ If prompt starts with 'weather:', call our short tool directly
+        if prompt.lower().startswith("weather:"):
+            city = prompt.split(":", 1)[1].strip()
+            return weather_tool_fn(city)
+
+        result = agent.run(prompt)
+        return result
+    except Exception as e:
+        return f"⚠️ Agent error: {str(e)}"
+
+# backend/app.py - FastAPI backend for Chrome AI Agent using Gemini 2.5 Flash
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Import tools
+from tools.weather_tool import weather_tool_fn
+from tools.summarize_tool import summarize_tool_fn
+from tools.sentiment_tool import sentiment_tool_fn
+from tools.email_tool import send_email_tool
+from tools.browse_tool import browse_tool_fn
+
+# Initialize FastAPI app
+app = FastAPI(title="Gemini 2.5 Flash AI Agent")
+
+# Allow CORS (frontend connection)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Pydantic request model
+class AgentRequest(BaseModel):
+    prompt: str
+
+
+@app.get("/")
+def root():
+    """Root route"""
+    return {"status": "✅ Gemini 2.5 Flash AI Agent is running!"}
+
+
+@app.post("/agent")
+async def run_agent(req: AgentRequest):
+    """Main AI Agent endpoint — routes to tools or Gemini reasoning."""
+    user_prompt = req.prompt.strip()
+    if not user_prompt:
+        raise HTTPException(status_code=400, detail="Prompt cannot be empty")
+
+    lower = user_prompt.lower()
+
+    # --- Weather Tool (Always short output) ---
+    if lower.startswith("weather:"):
+        city = user_prompt.split(":", 1)[1].strip()
+        short_weather = weather_tool_fn(city)
+        return {"response": short_weather}
+
+    # --- Summarize Tool ---
+    elif lower.startswith("summarize:"):
+        text = user_prompt.split(":", 1)[1].strip()
+        return {"response": summarize_tool_fn(text)}
+
+    # --- Sentiment Tool ---
+    elif lower.startswith("sentiment:"):
+        text = user_prompt.split(":", 1)[1].strip()
+        return {"response": sentiment_tool_fn(text)}
+
+    # --- Email Tool (supports multi-line input) ---
+    elif "send email" in lower:
+        try:
+            lines = [l.strip() for l in user_prompt.splitlines() if l.strip()]
+            to = subject = body = None
+
+            for line in lines:
+                if line.lower().startswith("to:"):
+                    to = line.split(":", 1)[1].strip()
+                elif line.lower().startswith("subject:"):
+                    subject = line.split(":", 1)[1].strip()
+                elif line.lower().startswith("body:"):
+                    body = line.split(":", 1)[1].strip()
+
+            if not to:
+                raise HTTPException(status_code=400, detail="Missing recipient email address.")
+
+            response = send_email_tool(to, subject or "No Subject", body or "")
+            return {"response": response}
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Email tool error: {str(e)}")
+
+    # --- Browse Tool ---
+    elif lower.startswith("browse:"):
+        url = user_prompt.split(":", 1)[1].strip()
+        return {"response": browse_tool_fn(url)}
+
+    # --- Default: Use Gemini reasoning for everything else ---
+    try:
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        response = model.generate_content(user_prompt)
+        return {"response": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gemini API error: {e}")
+
+
+# Startup Event
+@app.on_event("startup")
+def startup_event():
+    print("🚀 Gemini AI Agent backend is running on http://127.0.0.1:8000")
+# backend/requirements.txt - Dependencies for the backend server - Google Gemini Server
+fastapi
+uvicorn
+python-dotenv===1.0.1
+langchain
+langchain-google-genai
+google-generativeai
+requests
+textblob
+beautifulsoup4         
+# backend/tools/browse_tool.py - Simple web browsing tool using requests and BeautifulSoup
+import webbrowser
+import requests
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def browse_tool_fn(url: str) -> str:
+    """
+    Fetch and summarize webpage content using Gemini
+    and open the webpage in a new browser tab.
+    """
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url  # Auto-fix missing prefix
+
+    try:
+        # Open the URL in the user's browser
+        webbrowser.open_new_tab(url)
+
+        # Fetch limited content for Gemini summary
+        r = requests.get(url, timeout=10, headers={"User-Agent": "gemini-ai-agent/1.0"})
+        r.raise_for_status()
+        text = r.text[:3000]
+
+        # Summarize page using Gemini
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        prompt = f"Provide a concise 3-sentence summary of this webpage:\n\n{text}"
+        response = model.generate_content(prompt)
+
+        return f"🌐 Opened {url} in a new browser tab.\n\n🔍 Summary:\n{response.text.strip()}"
+    except Exception as e:
+        return f"❌ Error browsing {url}: {e}"
+
+# backend/tools/email_tool.py - Simplified email tool (placeholder)
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+import traceback
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def send_email_tool(to, subject, body):
+    """Send a real email using SMTP credentials from .env"""
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    email_from = os.getenv("EMAIL_FROM", smtp_user)
+
+    if not all([smtp_host, smtp_port, smtp_user, smtp_password]):
+        return "❌ Missing SMTP configuration. Please check .env file."
+
+    print("🔧 Preparing email...")
+    print(f"FROM: {email_from} TO: {to}")
+
+    msg = MIMEMultipart()
+    msg["From"] = email_from
+    msg["To"] = to
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        print("📡 Connecting to SMTP server...")
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
+            server.set_debuglevel(1)
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            response = server.send_message(msg)
+            print("📨 Server response:", response)
+
+        if response == {}:
+            print("✅ Email sent successfully!")
+            return f"✅ Email sent successfully to {to}"
+        else:
+            print("⚠️ Server returned non-empty response:", response)
+            return f"⚠️ Email possibly not sent. Response: {response}"
+
+    except smtplib.SMTPResponseException as e:
+        print(f"❌ SMTP error: {e.smtp_code} - {e.smtp_error.decode()}")
+        return f"❌ SMTP error: {e.smtp_code} - {e.smtp_error.decode()}"
+
+    except Exception as e:
+        print("❌ Exception while sending email:", e)
+        print("🔍 Traceback:\n", traceback.format_exc())
+        return f"❌ Error: {str(e)}"
+
+# backend/tools/sentiment_tool.py - Alternative sentiment tool using TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+_analyzer = SentimentIntensityAnalyzer()
+
+def sentiment_tool_fn(text: str) -> str:
+    s = _analyzer.polarity_scores(text)
+    compound = s.get("compound", 0.0)
+    if compound >= 0.05:
+        label = "🟢 Positive"
+    elif compound <= -0.05:
+        label = "🔴 Negative"
+    else:
+        label = "⚪ Neutral"
+    return f"Sentiment: {label}. Scores: {s}"
+
+
+# backend/tools/summarize_tool.py - Summarization tool using Gemini 2.5 Flash
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def summarize_tool_fn(text: str) -> str:
+    """Summarize text using Gemini 2.5 Flash"""
+    if not text.strip():
+        return "⚠️ Please provide text to summarize."
+
+    try:
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        prompt = f"Summarize this text in 3–5 sentences:\n\n{text.strip()}"
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        return f"❌ Error summarizing with Gemini: {e}"
+
+
+# backend/tools/weather_tool.py - Simple weather tool using wttr.in
+
+import os
+import requests
+from urllib.parse import quote_plus
+
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
+
+def weather_tool_fn(city_name: str) -> str:
+    city = city_name.strip()
+    if not OPENWEATHER_API_KEY:
+        return "⚠️ OpenWeather API key not set in .env file."
+
+    q = quote_plus(city)
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={q}&appid={OPENWEATHER_API_KEY}&units=metric"
+
+    try:
+        r = requests.get(url, timeout=10)
+        r.raise_for_status()
+        j = r.json()
+
+        name = j.get("name")
+        sys = j.get("sys", {})
+        country = sys.get("country", "")
+        main = j.get("main", {})
+        weather_arr = j.get("weather", [{}])
+        desc = weather_arr[0].get("description", "") if weather_arr else ""
+        temp = main.get("temp")
+        feels = main.get("feels_like")
+        humidity = main.get("humidity")
+        wind = j.get("wind", {}).get("speed")
+
+        if not name:
+            return "❌ City not found."
+
+        # ✅ Concise one-line weather output
+        return (
+            f"⛅ {name}, {country}: {desc.capitalize()}, "
+            f"{temp}°C (feels {feels}°C), 💧{humidity}% humidity, 🌬️{wind} m/s wind."
+        )
+    except Exception as e:
+        return f"❌ Error fetching weather: {e}"
+----------> go through above files& give updated version of every file to achieve multimodal functionality.  Update above project insuch way whatever i enter get response, similarily should get response in case of voice command. Should applicatble to all modules/tools, if i want to attach any kind of file then it should recognize file type & should also reconize content its meaning & then should respond, at a time any one modility should work.(text/voice commands/file). make sure updated version should support chrome based mice(that approch with microphone permission  in manifest.json  doesn't supported by chrome extension). Provide working implementable plan.
