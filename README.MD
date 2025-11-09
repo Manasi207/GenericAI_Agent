@@ -1,8 +1,8 @@
-# Generic AI Agent
+# 🧑‍💻 Generic AI Agent
 
 An intelligent, browser-integrated AI assistant built to simplify everyday tasks right from your Chrome tab. This project merges Google Gemini Flash 2.5 LLM, LangChain, and FastAPI with a sleek HTML/CSS/JS frontend — creating a multi-capable agent that can analyze, summarize, browse, and communicate effortlessly.
 
-# Features
+# 🧩 Features
 
 ## Core Modules
 
@@ -10,11 +10,11 @@ An intelligent, browser-integrated AI assistant built to simplify everyday tasks
 
 ####
 
-#### 💬 Sentiment Analysis – Understand the tone and mood of any text input using a custom VADER + Gemini-based analyzer.
+#### 🧩 Sentiment Analysis – Understand the tone and mood of any text input using a custom VADER + Gemini-based analyzer.
 
 #### 📝 Text Summarizer – Condense long articles or paragraphs into crisp, meaningful summaries.
 
-#### 🌍 Browse Through (Web Application) – AI-powered browsing with natural-language commands and content extraction.
+#### 🧩 Browse Through (Web Application) – AI-powered browsing with natural-language commands and content extraction.
 
 #### 📧 Send Emails – Compose and send emails using AI assistance via FastAPI backend integration.
 
@@ -48,20 +48,21 @@ An intelligent, browser-integrated AI assistant built to simplify everyday tasks
 
 #### OpenAI-style JSON schema for modular responses
 
-# Architecture Overview
+# 🧩 Architecture Overview
 
+```plaintext
 Frontend (Chrome Extension)
 │
 ├── popup.html / popup.js
-│ ├─ UI for weather, summarization, sentiment, email
-│ └─ Communicates with backend API endpoints
+│   ├─ UI for weather, summarization, sentiment, email
+│   └─ Communicates with backend API endpoints
 │
 └── Backend (FastAPI Server)
-├─ /weather → Weather API Integration
-├─ /sentiment → VADER + Gemini sentiment analyzer
-├─ /summarize → Gemini summarization
-├─ /browse → LangChain + Gemini for browsing tasks
-└─ /email → Email composition and send
+    ├─ /weather        → Weather API Integration
+    ├─ /sentiment      → VADER + Gemini sentiment analyzer
+    ├─ /summarize      → Gemini summarization
+    ├─ /browse         → LangChain + Gemini for browsing tasks
+    └─ /email          → Email composition and send
 
 # ⚙️ Setup & Installation
 
@@ -90,3 +91,4 @@ Go to chrome://extensions/
 Enable Developer Mode
 
 Click Load unpacked and select the frontend/ folder
+```
