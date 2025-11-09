@@ -1,9 +1,9 @@
-# 🧑‍💻 Generic AI Agent
+# 🤖 Generic AI Agent
 
 
 An intelligent, browser-integrated AI assistant built to simplify everyday tasks right from your Chrome tab. This project merges Google Gemini Flash 2.5 LLM, LangChain, and FastAPI with a sleek HTML/CSS/JS frontend — creating a multi-capable agent that can analyze, summarize, browse, and communicate effortlessly.
 
-# Features
+# 🧩 Features
 
 ## Core Modules
 
