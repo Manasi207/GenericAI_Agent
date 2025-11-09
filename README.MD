@@ -1,4 +1,5 @@
-# Generic AI Agent
+# 🧑‍💻 Generic AI Agent
+
 
 An intelligent, browser-integrated AI assistant built to simplify everyday tasks right from your Chrome tab. This project merges Google Gemini Flash 2.5 LLM, LangChain, and FastAPI with a sleek HTML/CSS/JS frontend — creating a multi-capable agent that can analyze, summarize, browse, and communicate effortlessly.
 
@@ -7,8 +8,6 @@ An intelligent, browser-integrated AI assistant built to simplify everyday tasks
 ## Core Modules
 
 #### 🌦 Check Weather – Instantly fetch real-time weather updates for any city.
-
-####
 
 #### 💬 Sentiment Analysis – Understand the tone and mood of any text input using a custom VADER + Gemini-based analyzer.
 
@@ -48,22 +47,23 @@ An intelligent, browser-integrated AI assistant built to simplify everyday tasks
 
 #### OpenAI-style JSON schema for modular responses
 
-# Architecture Overview
+# 🧩 Architecture Overview
 
+```plaintext
 Frontend (Chrome Extension)
 │
 ├── popup.html / popup.js
-│ ├─ UI for weather, summarization, sentiment, email
-│ └─ Communicates with backend API endpoints
+│   ├─ UI for weather, summarization, sentiment, email
+│   └─ Communicates with backend API endpoints
 │
 └── Backend (FastAPI Server)
-├─ /weather → Weather API Integration
-├─ /sentiment → VADER + Gemini sentiment analyzer
-├─ /summarize → Gemini summarization
-├─ /browse → LangChain + Gemini for browsing tasks
-└─ /email → Email composition and send
+    ├─ /weather        → Weather API Integration
+    ├─ /sentiment      → VADER + Gemini sentiment analyzer
+    ├─ /summarize      → Gemini summarization
+    ├─ /browse         → LangChain + Gemini for browsing tasks
+    └─ /email          → Email composition and send
 
-# ⚙️ Setup & Installation
+## ⚙️ Setup & Installation
 
 1️⃣ Clone the Repository
 git clone https://github.com/<your-username>/generic-ai-agent.git
