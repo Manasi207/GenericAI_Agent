@@ -1,0 +1,10 @@
+# backend/requirements.txt - Dependencies for the backend server - Google Gemini Server
+fastapi
+uvicorn
+python-dotenv===1.0.1
+langchain
+langchain-google-genai
+google-generativeai
+requests
+textblob
+beautifulsoup4

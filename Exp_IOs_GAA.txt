@@ -1,0 +1,15 @@
+1) weather in city
+
+2) Browse To - websites
+
+3) Summarize :  " History of Pune - Pune, with roots tracing to an 8th-century settlement called Punnaka, became a significant Maratha Empire center under Chhatrapati Shivaji Maharaj and later the powerful Peshwa rulers, a period marked by growth and historical landmarks like Shaniwar Wada. After being conquered by the British in 1817, it served as their "monsoon capital". Post-independence, Pune emerged as a major economic hub and the cultural capital of Maharashtra, known today for its prestigious educational institutions, vibrant art and culture, and a thriving innovation scene."
+
+4)Sentiment Analysis : 
+ -->I absolutely love this product! It has made my life so much easier.
+--->"This is the worst service I’ve ever had."
+--> I am worried about that matter.
+
+5) Send Email:
+   to: manasisabale2021@gmail.com; 
+   subject: Meeting Reminder;
+   body: Don’t forget our meeting tomorrow at 10 AM.

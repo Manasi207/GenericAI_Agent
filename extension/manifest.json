@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome AI Agent (Gemini 2.5 Flash)",
+  "version": "2.1",
+  "description": "AI Agent powered by Gemini 2.5 Flash (text + image reasoning + tool actions)",
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["http://127.0.0.1:8000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+}

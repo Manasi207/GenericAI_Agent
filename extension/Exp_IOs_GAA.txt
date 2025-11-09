@@ -1,0 +1,16 @@
+1) weather in city
+2) send email:
+to: manasi.official2024@gmail.com
+subject:demo mail
+body:Hello from agent.
+
+3) Summarize :  " History of Pune - Pune, with roots tracing to an 8th-century settlement called Punnaka, became a significant Maratha Empire center under Chhatrapati Shivaji Maharaj and later the powerful Peshwa rulers, a period marked by growth and historical landmarks like Shaniwar Wada. After being conquered by the British in 1817, it served as their "monsoon capital". Post-independence, Pune emerged as a major economic hub and the cultural capital of Maharashtra, known today for its prestigious educational institutions, vibrant art and culture, and a thriving innovation scene."
+
+4)Sentiment Analysis : 
+ -->I absolutely love this product! It has made my life so much easier.
+--> I am worried about that matter.
+---> Prompt:
+
+"I can’t believe how amazing the new phone is—well, at least until it randomly shuts down every hour. I love the design and camera, but seriously, who thought this buggy software was acceptable? Honestly, it makes me both excited and frustrated at the same time."
+
+5) Browse Through:
